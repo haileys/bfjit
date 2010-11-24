@@ -37,11 +37,6 @@ compile_result compile(const char* bf, void* mem)
 	
 	for(int i = 0; i < len; i++)
 	{
-		//
-	}
-	
-	for(int i = 0; i < len; i++)
-	{
 		switch(bf[i])
 		{
 		case '>':
@@ -112,6 +107,8 @@ compile_result compile(const char* bf, void* mem)
 			exec += 4;
 			*exec++ = 0xFF; // call ecx
 			*exec++ = 0xD1; //
+			*exec++ = 0x88; // mov [ebx], al
+			*exec++ = 0x03; // 
 				
 			break;
 		}
