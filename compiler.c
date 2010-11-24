@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "compiler.h"
+#include <stdbool.h>
 
 compile_result compile(const char* bf, void* mem)
 {
@@ -30,10 +31,14 @@ compile_result compile(const char* bf, void* mem)
 	*exec++ = 0x00; //
 	*exec++ = 0x00; //
 	*exec++ = 0x00; //
+	*exec++ = 0x31; // xor eax, eax
+	*exec++ = 0xC0; // 
 	
 	*exec++ = 0xBB; // mov ebx
 	*(int*)exec = mem_addr;
 	exec += 4;
+	
+	bool alInvalidated = false;
 	
 	for(int i = 0; i < len; i++)
 	{
