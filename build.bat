@@ -1,0 +1,1 @@
+gcc -std=c99 -o bfjit.exe bfjit.c compiler.c
