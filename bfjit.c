@@ -10,8 +10,8 @@ int main()
 	unsigned char* mem = (unsigned char*)malloc(BF_MEM_SIZE);
 	memset(mem, 0, BF_MEM_SIZE);
 	
-	//const char* bf = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
-	const char* bf = "+[,.]";
+	const char* bf = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
+	//const char* bf = "+>+.<+.";
 	
 	compile_result compiled = compile(bf, mem);
 	

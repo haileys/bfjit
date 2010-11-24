@@ -38,38 +38,64 @@ compile_result compile(const char* bf, void* mem)
 	*(int*)exec = mem_addr;
 	exec += 4;
 	
-	bool alInvalidated = false;
+	bool alInvalidated = true;
 	
 	for(int i = 0; i < len; i++)
 	{
 		switch(bf[i])
 		{
 		case '>':
+			if(i != 0 && bf[i-1] != '>')
+			{
+				*exec++ = 0x88; // mov [ebx], al
+				*exec++ = 0x03; // 
+			}
 			*exec++ = 0x43; // inc ebx
+			alInvalidated = true;
 			break;
 		case '<':
+			if(i != 0 && bf[i-1] != '<')
+			{
+				*exec++ = 0x88; // mov [ebx], al
+				*exec++ = 0x03; // 
+			}
 			*exec++ = 0x4B; // dec ebx
+			alInvalidated = true;
 			break;
 		case '+':
-			*exec++ = 0x8A; // mov al, [ebx]
-			*exec++ = 0x03; // 
+			if(alInvalidated)
+			{
+				*exec++ = 0x8A; // mov al, [ebx]
+				*exec++ = 0x03; // 
+				alInvalidated = false;
+			}
 			*exec++ = 0xFE; // inc al
 			*exec++ = 0xC0; // 
-			*exec++ = 0x88; // mov [ebx], al
-			*exec++ = 0x03; // 
 			break;
 		case '-':
-			*exec++ = 0x8A; // mov al, [ebx]
-			*exec++ = 0x03; // 
+			if(alInvalidated)
+			{
+				*exec++ = 0x8A; // mov al, [ebx]
+				*exec++ = 0x03; // 
+				alInvalidated = false;
+			}
 			*exec++ = 0xFE; // dec al
 			*exec++ = 0xC8; // 
-			*exec++ = 0x88; // mov [ebx], al
-			*exec++ = 0x03; // 
 			break;
 		case '[':
 			*jmp_stack++ = (int)exec; // store location of current thingy to be filled in later.
-			*exec++ = 0x8A; // mov al, [ebx]
-			*exec++ = 0x03; // 
+			if(alInvalidated)
+			{
+				*exec++ = 0x8A; // mov al, [ebx]
+				*exec++ = 0x03; // 
+				alInvalidated = false;
+			}
+			else
+			{
+				// padding to make sure we don't throw off the offsets (grr, offsets)
+				*exec++ = 0x90; // nop
+				*exec++ = 0x90; // nop
+			}
 			*exec++ = 0xA8; // TEST al, 0xFF
 			*exec++ = 0xFF; //
 			*exec++ = 0x0F; // JZ ?
@@ -92,8 +118,12 @@ compile_result compile(const char* bf, void* mem)
 			*(int*)(jmp_to+6) = offset;
 			break;
 		case '.':
-			*exec++ = 0x8B; // mov eax, [ebx]
-			*exec++ = 0x03; // 
+			if(alInvalidated)
+			{
+				*exec++ = 0x8A; // mov al, [ebx]
+				*exec++ = 0x03; // 
+				alInvalidated = false;
+			}
 			
 			*exec++ = 0x89; // mov [esp], eax
 			*exec++ = 0x04; // 
